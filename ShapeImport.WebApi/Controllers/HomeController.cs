@@ -64,15 +64,22 @@ namespace ShapeImport.WebApi.Controllers
             System.Diagnostics.Debug.WriteLine("Shapefile parse: {0}ms", (DateTime.Now - start).TotalMilliseconds);
 
             start = DateTime.Now;
+            var missing = new List<string>();
             foreach (var areawrap in wrapper.extAreaList)
             {
                 foreach (var area in areawrap.areas)
                 {
                     var shapeArea = shapeFileAreas.FirstOrDefault(sfa => sfa.fullName == area.fullName);
+                    if (shapeArea == null)
+                        shapeArea = shapeFileAreas.FirstOrDefault(sfa => area.fullName.EndsWith(sfa.name));
+
                     if (shapeArea != null)
                         area.polygons = shapeArea.polygons;
+                    else
+                        missing.Add(area.fullName);
                 }
             }
+            File.WriteAllLines(@"C:\users\public\documents\missingareas.txt", missing, System.Text.Encoding.UTF8);
             System.Diagnostics.Debug.WriteLine("Borders replace: {0}ms", (DateTime.Now - start).TotalMilliseconds);
 
             start = DateTime.Now;

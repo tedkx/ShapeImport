@@ -54,7 +54,7 @@ namespace ShapeImport
 
         static double[] CoordFormatter(Coordinate coord)
         {
-            return new double[] { coord.X, coord.Y };
+            return new double[] { coord.Y, coord.X };
         }
     }
 }
