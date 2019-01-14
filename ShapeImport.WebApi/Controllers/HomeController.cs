@@ -65,6 +65,7 @@ namespace ShapeImport.WebApi.Controllers
 
             start = DateTime.Now;
             var missing = new List<string>();
+            var processed = new List<string>();
             foreach (var areawrap in wrapper.extAreaList)
             {
                 foreach (var area in areawrap.areas)
@@ -73,13 +74,18 @@ namespace ShapeImport.WebApi.Controllers
                     if (shapeArea == null)
                         shapeArea = shapeFileAreas.FirstOrDefault(sfa => area.fullName.EndsWith(sfa.name));
 
-                    if (shapeArea != null)
+                    if (shapeArea != null) {
                         area.polygons = shapeArea.polygons;
-                    else
+                        processed.Add(area.fullName);
+                    } else {
                         missing.Add(area.fullName);
+                    }
                 }
             }
-            File.WriteAllLines(@"C:\users\public\documents\missingareas.txt", missing, System.Text.Encoding.UTF8);
+            var leftOut = shapeFileAreas.Where(s => !processed.Contains(s.fullName)).Select(s => s.fullName);
+            Directory.CreateDirectory(@"C:\users\public\documents\ShapeFileImport");
+            File.WriteAllLines(@"C:\users\public\documents\ShapeFileImport\missingareas.txt", missing, System.Text.Encoding.UTF8);
+            File.WriteAllLines(@"C:\users\public\documents\ShapeFileImport\leftoutareas.txt", leftOut.ToArray(), System.Text.Encoding.UTF8);
             System.Diagnostics.Debug.WriteLine("Borders replace: {0}ms", (DateTime.Now - start).TotalMilliseconds);
 
             start = DateTime.Now;
